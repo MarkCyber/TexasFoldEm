@@ -1,0 +1,144 @@
+Core Modules
+Screen Capture & Table State Detection (CV Layer)
+
+Game State Parser & Abstraction Engine
+
+Player Modeling System (Tracking & Clustering)
+
+Decision Engine (GTO + Exploit Layer)
+
+Play Recommender UI
+
+1. Screen Capture & Table State Detection
+Goal: Read game state from screen in real time.
+
+Tools:
+mss, pygetwindow, pyautogui for window detection + capture
+
+OpenCV + Tesseract for image processing and OCR
+
+Possibly YOLOv8 or MMDetection for dealer chip and stack/pot/avatars detection
+
+Tasks:
+Detect:
+
+Dealer chip (→ position recognition)
+
+Player avatars / card slots (to see who’s in hand)
+
+Stack sizes under each player
+
+Pot size
+
+Hole cards + board cards
+
+OCR regions for text like stack size / pot / bet amounts
+
+Maintain frame-to-frame state diffs (for fold detection, stack changes, etc.)
+
+2. Game State Parser
+Goal: Convert raw visual info into structured game state.
+
+GameState = {
+  "street": "preflop" | "flop" | "turn" | "river",
+  "position": "UTG" | "MP" | "CO" | "BTN" | "SB" | "BB",
+  "hand": ["Ah", "Kd"],
+  "board": ["", "", "", "", ""],
+  "pot": 3.5,
+  "stack": 98.5,
+  "players_active": [...],
+  "player_stats": {...},  # PFR/VPIP/etc.
+  ...
+}
+3. Opponent Modeling
+Goal: Track opponents and build profiles.
+
+Key Stats to Track:
+VPIP: Voluntarily Put $ in Pot
+
+PFR: Preflop Raise %
+
+3B: 3-Bet %
+
+Fold to C-Bet, WTSD (Went To Showdown), etc.
+
+How:
+Store per-player data in SQLite or local NoSQL DB
+
+Use sklearn for clustering (e.g., KMeans or DBSCAN)
+
+Update models over time to:
+
+Classify players (LAG/TAG/NIT)
+
+Detect tendencies (e.g., loose preflop, folds to pressure, etc.)
+
+4. Decision Engine
+Goal: Suggest optimal plays based on GTO + Exploit.
+
+Base Layer: GTO Solver
+Use pretrained GTO charts (CSV/json format) from tools like:
+
+GTOWizard (scraped/ripped formats exist online)
+
+Simple Preflop/Flop Lookup CSVs
+
+Or interface with a local PioSOLVER install (slow for real-time)
+
+Exploit Layer:
+Adjust GTO recommendation based on opponent stats
+
+Example:
+
+If BTN opens wide and folds often to 3-bets → 3B more often
+
+If CO has VPIP = 10% → tighten your call range
+
+
+PlayRecommendation = {
+  "action": "3bet",
+  "amount": 9.5,
+  "confidence": 92,
+  "notes": "BTN has high fold-to-3bet rate",
+}
+
+5. play Recommender UI
+A simple on-screen overlay (like a transparent HUD) that shows:
+
+Recommended move
+
+Villain stats
+
+Your current equity estimate
+
+Range advantage bar
+
+Reasoning (e.g., "You have nut advantage on this flop")
+
+Toolkits:
+Tkinter or PyQt for fast UI overlay
+
+Or write directly with OpenCV to create lightweight overlays
+
+Tech Stack Suggestion
+Component	Tech / Libs
+Screen Grabber	mss, pyautogui, pygetwindow
+OCR / CV	OpenCV, Tesseract, YOLOv8
+GTO Base Logic	CSV chart reader, PioSOLVER interface
+ML / Clustering	scikit-learn, pandas, numpy
+DB / Stats	SQLite, TinyDB, or simple JSON persistence
+Overlay / HUD	Tkinter, PyQt, OpenCV, or Electron
+
+Decide how to structure screen regions (identify pixel zones for pot, players, cards, etc.)
+
+Prototype CV pipeline to:
+
+Grab screen
+
+Detect dealer chip + folded players
+
+Read pot/stack sizes
+
+Start defining GameState schema for full abstraction
+
+Begin importing GTO charts and testing lookup logic (can help you build the parser)
