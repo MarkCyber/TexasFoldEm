@@ -120,14 +120,13 @@ Tkinter or PyQt for fast UI overlay
 
 Or write directly with OpenCV to create lightweight overlays
 
-Tech Stack Suggestion
-Component	Tech / Libs
-Screen Grabber	mss, pyautogui, pygetwindow
-OCR / CV	OpenCV, Tesseract, YOLOv8
-GTO Base Logic	CSV chart reader, PioSOLVER interface
-ML / Clustering	scikit-learn, pandas, numpy
-DB / Stats	SQLite, TinyDB, or simple JSON persistence
-Overlay / HUD	Tkinter, PyQt, OpenCV, or Electron
+Tech Stack:
+Screen Grabber:	mss, pyautogui, pygetwindow
+OCR / CV:	OpenCV, Tesseract, YOLOv8
+GTO: Base Logic	CSV chart reader, PioSOLVER interface
+ML / Clustering:	scikit-learn, pandas, numpy
+DB / Stats:	SQLite, TinyDB, or simple JSON persistence
+Overlay / HUD:	Tkinter, PyQt, OpenCV, or Electron
 
 Decide how to structure screen regions (identify pixel zones for pot, players, cards, etc.)
 
